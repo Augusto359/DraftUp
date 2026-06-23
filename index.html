@@ -1,14 +1,48 @@
-<div>
-    <!-- Texto que fica em cima da caixa -->
-    <label class="block text-sm font-medium text-slate-300 mb-1">
-        Nome do Operário
-    </label>
-    
-    <!-- A caixa onde o usuário vai digitar -->
-    <input 
-        type="text" 
-        id="nome-funcionario" 
-        placeholder="Digite o nome completo" 
-        class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-orange-500"
-    >
-</div>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>DraftUp</title>
+    </head>
+
+    <body>
+        <div id="header">
+            <header>
+                Fala ai bixuda -------- Inicio -------- Sobre -------- Como funciona --------
+                Contato
+            </header>
+            <h1 className="bg-purple-500 inline-block p-2 rounded text-white">DraftUp</h1>
+            <sub>iai bixuda</sub>
+            <script src="script.js"></script>
+            <script>
+                areaUpload.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    areaUpload.style.borderColor = '#0056b3';
+                });
+                areaUpload.addEventListener('dragleave', (e) => {
+                    areaUpload.style.borderColor = '#ccc';
+                });
+                areaUpload.addEventListener('drop', (e) => {
+                    areaUpload.style.borderColor = '#ccc';
+                    e.preventDefault();
+                });
+                const arquivos = e.dataTransfer.files;
+
+                if (arquivos.length > 0) {
+                    console.log('arquivo detectado');
+                }
+            </script>
+            <div
+                id="area upload"
+                style="border: 2px dashed #000; padding: 40px; text-align: center">
+                <p>Arraste seu arquivo aqui bixuda</p>
+            </div>
+
+            <img
+                id="preview-image"
+                src=""
+                alt="Sua planta"
+                style="max-width: 100%; max-height: 200px; display: none; margin-top: 20px" />
+        </div>
+    </body>
+</html>
