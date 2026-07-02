@@ -1,30 +1,29 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DraftUp</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head> 
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-start p-6">
 
-<body>
-    <div id="header">
-        
-        <header>
-            <h1 style="text-align: center; color: black;">DraftUp ------------ ai bixuda -------- Inicio -------- Sobre -------- Como funciona -------- Contato</h1>
+    <div id="header" class="w-full max-w-4xl text-center mb-8">
+        <header class="border-b border-slate-700 pb-4 mb-4">
+            <h1 class="text-3xl font-bold text-purple-400 mb-2">DraftUp</h1>
+            <nav class="space-x-4 text-sm text-slate-400">
+                <a href="#" class="hover:text-purple-400 transition">Início</a>
+                <a href="#" class="hover:text-purple-400 transition">Sobre</a>
+                <a href="#" class="hover:text-purple-400 transition">Como funciona</a>
+                <a href="#" class="hover:text-purple-400 transition">Contato</a>
+            </nav>
         </header>
         
-        <sub>iai bixuda</sub>
+        <sub class="text-xs text-slate-500 block mb-6">iai bixuda</sub>
         
-        <div id="area-upload" style="padding: 40px; text-align: center">
-            <p>Arraste seu arquivo aqui bixuda</p>
+        <div id="area-upload" class="border-2 border-dashed border-slate-600 rounded-xl padding p-12 bg-slate-800 cursor-pointer hover:border-purple-500 transition-colors">
+            <p class="text-lg font-medium text-slate-300">Arraste seu arquivo aqui bixuda</p>
+            <p class="text-sm text-slate-500 mt-1">ou solte o arquivo da sua planta aqui</p>
         </div>
 
         <img
             id="preview-image"
             src=""
             alt="Sua planta"
-            style="max-width: 100%; max-height: 200px; display: none; margin-top: 20px" />
+            style="max-width: 100%; max-height: 200px; display: none;" 
+            class="mt-6 rounded-lg shadow-lg mx-auto" />
     </div>
 
     <script>
@@ -32,17 +31,22 @@
 
         areaUpload.addEventListener('dragover', (e) => {
             e.preventDefault(); 
+            // Adiciona a borda roxa do Tailwind ao arrastar por cima
             areaUpload.style.borderColor = '#a855f7'; 
+            areaUpload.style.backgroundColor = '#1e1b4b'; // Fundo levemente roxo
         });
 
         areaUpload.addEventListener('dragleave', (e) => {
             e.preventDefault();
+            // Volta para a cor original do Tailwind (slate-600)
             areaUpload.style.borderColor = '#475569'; 
+            areaUpload.style.backgroundColor = '#1e293b'; 
         });
 
         areaUpload.addEventListener('drop', (e) => {
             e.preventDefault();
             areaUpload.style.borderColor = '#475569';
+            areaUpload.style.backgroundColor = '#1e293b';
             
             const arquivos = e.dataTransfer.files;
 
@@ -53,4 +57,3 @@
         });
     </script>
 </body>
-</html>
