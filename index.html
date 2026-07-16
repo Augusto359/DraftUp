@@ -1,59 +1,49 @@
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-start p-6">
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=
+    , initial-scale=1.0">
+    <title>DraftUp</title>
+    <script src="js/indexjs.js"></script>
+    <link rel="stylesheet" href="css/indexcss.css">
+</head>
+<header>
+    <h1 class="font-bold">DraftUp</h1>
+</header>
+<body>
 
-    <div id="header" class="w-full max-w-4xl text-center mb-8">
-        <header class="border-b border-slate-700 pb-4 mb-4">
-            <h1 class="text-3xl font-bold text-purple-400 mb-2">DraftUp</h1>
-            <nav class="space-x-4 text-sm text-slate-400">
-                <a href="#" class="hover:text-purple-400 transition">Início</a>
-                <a href="#" class="hover:text-purple-400 transition">Sobre</a>
-                <a href="#" class="hover:text-purple-400 transition">Como funciona</a>
-                <a href="#" class="hover:text-purple-400 transition">Contato</a>
-            </nav>
-        </header>
-        
-        <sub class="text-xs text-slate-500 block mb-6">iai bixuda</sub>
-        
-        <div id="area-upload" class="border-2 border-dashed border-slate-600 rounded-xl padding p-12 bg-slate-800 cursor-pointer hover:border-purple-500 transition-colors">
-            <p class="text-lg font-medium text-slate-300">Arraste seu arquivo aqui bixuda</p>
-            <p class="text-sm text-slate-500 mt-1">ou solte o arquivo da sua planta aqui</p>
+    <h2>Entenda sua planta sem complicação</h2>
+    <sub>Transformamos plantas em explicações simples e visuais pare proprietários, clientes e profissionais</sub>  <br><br><!--arrumar-->
+    <button id="envplanta">Enviar Planta</button>
+    <hr>
+
+    <h2>Plantas são feitas para especialistas</h2>
+    <sub>Muitas pessoas recebem uma planta e não conseguem identificar paredes estruturais, tubulações, portas ou possíveis limitações da obra. <br>
+Isso gera dúvidas, insegurança e erros durante reformas e construções.</sub>
+    <hr>
+
+    <h2>O Construlink traduz a linguagem técnica</h2>
+    <section class="cards">
+        <div class="card">
+            <h3>Envie sua planta</h3>
+            <p>Faça upload do arquivo em poucos segundos</p>
         </div>
 
-        <img
-            id="preview-image"
-            src=""
-            alt="Sua planta"
-            style="max-width: 100%; max-height: 200px; display: none;" 
-            class="mt-6 rounded-lg shadow-lg mx-auto" />
-    </div>
+        <div class="card">
+            <h3>Identifique elementos importantes</h3>
+            <p>Localize portas, paredes, janelas e estruturas essenciais.</p>
+        </div>
 
-    <script>
-        const areaUpload = document.getElementById('area-upload');
+        <div class="card">
+            <h3>Visualize em linguagem simples</h3>
+            <p>Entenda o que cada elemento significa para sua obra.</p>
+        </div>
 
-        areaUpload.addEventListener('dragover', (e) => {
-            e.preventDefault(); 
-            // Adiciona a borda roxa do Tailwind ao arrastar por cima
-            areaUpload.style.borderColor = '#a855f7'; 
-            areaUpload.style.backgroundColor = '#1e1b4b'; // Fundo levemente roxo
-        });
-
-        areaUpload.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            // Volta para a cor original do Tailwind (slate-600)
-            areaUpload.style.borderColor = '#475569'; 
-            areaUpload.style.backgroundColor = '#1e293b'; 
-        });
-
-        areaUpload.addEventListener('drop', (e) => {
-            e.preventDefault();
-            areaUpload.style.borderColor = '#475569';
-            areaUpload.style.backgroundColor = '#1e293b';
-            
-            const arquivos = e.dataTransfer.files;
-
-            if (arquivos.length > 0) {
-                console.log('arquivo detectado:', arquivos[0].name);
-                alert('Arquivo detectado com sucesso: ' + arquivos[0].name);
-            }
-        });
-    </script>
+        <div class="card">
+            <h3>Veja em 3D</h3>
+            <p>Transforme informações técnicas em uma visualização fácil de interpretar.</p>
+        </div>
+    </section>
+    
 </body>
+</html>
