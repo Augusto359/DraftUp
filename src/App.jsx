@@ -1,122 +1,109 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react';
+// Se os estilos estiverem no CSS global do Vite, você não precisa importar aqui.
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function LandingPage() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="max-w-[700px] my-10 mx-auto px-5 text-[#333] font-sans leading-relaxed">
+      
+      <header>
+        <h1 className="font-bold text-3xl">DraftUp</h1>
+      </header>
+
+      <h2 className="text-2xl font-semibold mt-6">Entenda sua planta sem complicação</h2>
+      <p>Transformamos plantas em explicações simples e visuais para proprietários, clientes e profissionais</p>
+      <br />
+      <br /> {/* arrumado o comentário anterior */}
+      
+      <button id="envplanta" className="bg-orange-500 text-white p-2 rounded">
+        Enviar Planta
+      </button>
+      <hr className="my-6 border-gray-200" />
+
+      <h2>Plantas são feitas para especialistas</h2>
+      <p>
+        Muitas pessoas recebem uma planta e não conseguem identificar paredes estruturais, tubulações, portas ou possíveis limitações da obra. <br />
+        Isso gera dúvidas, insegurança e erros durante reformas e construções.
+      </p>
+      <hr className="my-6 border-gray-200" />
+
+      <h2>O Construlink traduz a linguagem técnica</h2>
+      <section className="cards grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card border p-4 rounded-xl">
+          <h3>Envie sua planta</h3>
+          <p>Faça upload do arquivo em poucos segundos</p>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+
+        <div className="card border p-4 rounded-xl">
+          <h3>Identifique elementos importantes</h3>
+          <p>Localize portas, paredes, janelas e estruturas essenciais.</p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+
+        <div className="card border p-4 rounded-xl">
+          <h3>Visualize em linguagem simples</h3>
+          <p>Entenda o que cada elemento significa para sua obra.</p>
+        </div>
+
+        <div className="card border p-4 rounded-xl">
+          <h3>Veja em 3D</h3>
+          <p>Transforme informações técnicas em uma visualização fácil de interpretar.</p>
+        </div>
+      </section>
+
+      <hr className="my-6 border-gray-200" />
+      
+      <div id="como-funciona">
+        <h2>Como funciona?</h2>
+
+        <h4>
+          <b>Primeiro passo:</b><br />
+          Envie sua planta
+        </h4>
+        
+        {/* Divisor Seta convertido */}
+        <div className="flex justify-center my-12 text-gray-400">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      
+        <h4>
+          <b>Segundo passo:</b><br />
+          Receba a análise dos elementos
+        </h4>
+      
+        <div className="flex justify-center my-12 text-gray-400">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      
+        <h4>
+          <b>Terceiro passo:</b><br />
+          Explore a explicação simplificada
+        </h4>
+
+        <div className="flex justify-center my-12 text-gray-400">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      
+        <h4>
+          <b>Quarto passo:</b><br />
+          Visualize o resultado em 3D
+        </h4>
+      </div>
+
+      <hr className="my-6 border-gray-200" />
+
+      <div id="chamada-final" className="text-center my-8">
+        <h3>Pronto para entender sua planta?</h3>
+        <p>Envie seu arquivo e descubra cada detalhe da sua construção de forma simples e visual!</p>
+        <button className="bg-orange-500 text-white p-3 rounded-lg mt-4">
+          Começar Agora
         </button>
-      </section>
+      </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    </div>
+  );
 }
-
-export default App
