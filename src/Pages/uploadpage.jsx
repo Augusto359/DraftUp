@@ -1,6 +1,10 @@
 import React from 'react'
+import { useState } from 'react';
+
 
 export default function Upload() {
+  const [arquivo, setArquivo] = useState(null);
+
   return (
     <div className="w-full">
       {/* logo aqui */}
@@ -11,12 +15,35 @@ export default function Upload() {
         <header className="flex justify-between items-center p-4">
           <h1 className="text-5xl text-center bold">DraftUp</h1>
           <nav className="flex gap-4">
-              <a href="#" className='text-blue-600'>Início</a>
-              <a href="#" className='text-blue-600'>Sobre</a>
-              <a href="#" className='text-blue-600'>Como funciona</a>
-              <a href="#" className='text-blue-600'>Contatos</a>
+              <a href="#" className='text-blue-600 underline'>Início</a>
+              <a href="#" className='text-blue-600 underline'>Sobre</a>
+              <a href="#" className='text-blue-600 underline'>Como funciona</a>
+              <a href="#" className='text-blue-600 underline'>Contatos</a>
           </nav>
         </header>
+    <br />
+    <hr className='border-t-gray-500' />
+    <br />
+
+    <section id='Hero'>
+      <h2>Envie sua planta</h2>
+      <p>Faça upload da sua planta baixa e receba uma explicação simples dos elementos encontrados.</p>
+    </section>  
+    <br />
+    <hr className='border-t-gray-500' />
+    <br />
+
+    <div id='upload'>
+      <input
+        type="file"
+        onChange={(e) => setArquivo(e.target.files[0])}
+      />
+
+      {arquivo && <p>Arquivo: {arquivo.name}</p>}
+    </div>
+
+
+    
       </div>
     </div>
   );
