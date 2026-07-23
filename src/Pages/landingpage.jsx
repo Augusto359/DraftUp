@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 // Se os estilos estiverem no CSS global do Vite, você não precisa importar aqui.
 
 export default function LandingPage() {
@@ -14,9 +15,9 @@ export default function LandingPage() {
       <br />
       <br /> {/* arrumado o comentário anterior */}
       
-      <button id="envplanta" className="bg-orange-500 text-white p-2 rounded">
+      <Link to='/upload' id="envplanta" className="bg-orange-500 text-white p-2 rounded">
         Enviar Planta
-      </button>
+      </Link>
       <hr className="my-6 border-gray-200" />
 
       <h2>Plantas são feitas para especialistas</h2>
@@ -99,9 +100,9 @@ export default function LandingPage() {
       <div id="chamada-final" className="text-center my-8">
         <h3>Pronto para entender sua planta?</h3>
         <p>Envie seu arquivo e descubra cada detalhe da sua construção de forma simples e visual!</p>
-        <button className="bg-orange-500 text-white p-3 rounded-lg mt-4">
+        <Link to='/upload' className="bg-orange-500 text-white p-3 rounded-lg mt-4">
           Começar Agora
-        </button>
+        </Link>
       </div>
 
     </div>
