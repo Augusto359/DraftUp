@@ -1,0 +1,16 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+#area-upload {
+    border: 1px solid;
+    border-color: gray;
+    padding: 40px;
+    border-style: dashed;
+    text-align: center;
+
+
+}
