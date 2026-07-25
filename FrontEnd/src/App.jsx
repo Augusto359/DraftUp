@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import LandingPage from './Pages/landingpage';
 import UploadPage from './Pages/uploadpage';
+import AnalyzingPage from './Pages/analyzing'
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
 
     
         <Route path="/upload" element={<UploadPage />} />
+
+        <Route path="/analyzing" element={<AnalyzingPage />} />
+        
 
       </Routes>
 
