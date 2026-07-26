@@ -3,23 +3,18 @@ import { Link } from 'react-router-dom';
 
 export default function LandingPage() {
   return (
-    // Container Principal envelopando TODO o JSX
     <div className="max-w-4xl my-10 mx-auto px-5 text-[#333] font-sans leading-relaxed">
       
-      {/* Header */}
-      <div id="header">
-        <header className="flex justify-between items-center p-4">
-          <h1 className="text-5xl font-bold">DraftUp</h1>
-          <nav className="flex gap-4">
-            <Link to="/" className='text-orange-600 underline font-medium'>Início</Link>
-            <a href="#como-funciona" className='text-orange-600 underline font-medium'>Sobre</a>
-            <a href="#como-funciona" className='text-orange-600 underline font-medium'>Como funciona</a>
-            <a href="#chamada-final" className='text-orange-600 underline font-medium'>Contatos</a>
-          </nav>
+      {/* Header Corrigido */}
+       <header className="flex justify-between items-center pb-6 border-b border-gray-200 mb-8">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">DraftUp</h1>
+                <nav className="flex gap-4 text-xs sm:text-sm font-semibold">
+                  <Link to="/" className="text-gray-600 hover:text-orange-600 transition-colors">Início</Link>
+                  <Link to="/AboutUs" className="text-gray-600 hover:text-orange-600 transition-colors">Sobre</Link>
+                  <Link to="/#como-funciona" className="text-gray-600 hover:text-orange-600 transition-colors">Como funciona</Link>
+                  <Link to="/#chamada-final" className="text-gray-600 hover:text-orange-600 transition-colors">Contatos</Link>
+                </nav>
         </header>
-      </div>
-
-      <hr className="my-6 border-gray-200" />
 
       {/* Hero Section */}
       <section className="my-8 text-center">

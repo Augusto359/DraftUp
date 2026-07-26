@@ -6,14 +6,14 @@ import Cloud from '../../imagens/cloud.png';
 export default function Upload() {
   const [arquivo, setArquivo] = useState(null);
   const [mostrarcard, setMostrarcard] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ Estado de loading adicionado
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Função para redirecionar para a página de análise com o arquivo selecionado
   const handleEnviar = () => {
     if (!arquivo || loading) return;
     
-    setLoading(true); // ✅ Trava cliques repetidos
+    setLoading(true);
     navigate('/analyzing', { state: { arquivo } });
   };
 
@@ -26,21 +26,16 @@ export default function Upload() {
       <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] pointer-events-none" />
 
       {/* Container Principal */}
-      <div className="relative w-full max-w-3xl bg-white rounded-2xl p-6 sm:p-10 shadow-xl border border-gray-100">
+      <div className="relative w-full max-w-3xl bg-white rounded-2xl p-6 sm:p-10 shadow-xl border border-gray-100 my-auto">
         
-        {/* Header Clean */}
-        <header className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-6 border-b border-gray-100">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            DraftUp
-          </h1>
-
-          <nav className="flex items-center gap-6 text-sm font-medium">
-            <Link to="/" className="text-orange-600 font-semibold border-b-2 border-orange-500 pb-0.5">
-              Início
-            </Link>
-            <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">Sobre</a>
-            <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">Como funciona</a>
-            <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">Contatos</a>
+        {/* Header Padronizado */}
+        <header className="flex justify-between items-center pb-6 border-b border-gray-200 mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">DraftUp</h1>
+          <nav className="flex gap-4 text-xs sm:text-sm font-semibold">
+            <Link to="/" className="text-gray-600 hover:text-orange-600 transition-colors">Início</Link>
+           <Link to="/AboutUs" className="text-gray-600 hover:text-orange-600 transition-colors">Sobre</Link>
+            <Link to="/#como-funciona" className="text-gray-600 hover:text-orange-600 transition-colors">Como funciona</Link>
+            <Link to="/#chamada-final" className="text-gray-600 hover:text-orange-600 transition-colors">Contatos</Link>
           </nav>
         </header>
 
@@ -94,10 +89,10 @@ export default function Upload() {
           {/* Botão de Envio enviando para /analyzing */}
           <button 
             onClick={handleEnviar}
-            disabled={!arquivo || loading} // ✅ Propriedades unificadas
+            disabled={!arquivo || loading}
             className="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-sm"
           >
-            {loading ? 'Enviando...' : 'Enviar planta'} {/* ✅ Feedback dinâmico */}
+            {loading ? 'Enviando...' : 'Enviar planta'}
           </button>
         </div>
 
