@@ -1,33 +1,29 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Define o caminho absoluto do diretório
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 1. DECLARAÇÃO DO APP
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Aponta para a pasta FrontEnd
 app.use(express.static(path.join(__dirname, '../FrontEnd/dist')));
 
-// 2. Inicialização do Supabase
+// Inicialização do Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// 3. Configuração do Multer (memória temporária)
+// Configuração do Multer (memória temporária)
 const storageTemp = multer.memoryStorage();
 const upload = multer({ storage: storageTemp });
 
-// 4. ROTA PRINCIPAL: Analisar Planta
+// ROTA PRINCIPAL: Analisar Planta
 app.post('/analisar-planta', upload.single('foto'), async (req, res) => {
     try {
         const file = req.file;
@@ -38,7 +34,7 @@ app.post('/analisar-planta', upload.single('foto'), async (req, res) => {
 
         console.log("📸 Arquivo recebido:", file.originalname, file.mimetype);
 
-        // Upload no Supabase (continua funcionando normalmente)
+        // 1. Upload no Supabase Storage
         const fileName = `${Date.now()}-${file.originalname}`;
         const { data, error: storageError } = await supabase.storage
             .from('plantas')
@@ -58,15 +54,60 @@ app.post('/analisar-planta', upload.single('foto'), async (req, res) => {
 
         console.log("✅ Upload concluído no Supabase:", publicUrl);
 
-        // ============================================================
-        // 🧪 MOCK TEMPORÁRIO (Simulação para não gastar cota da API)
-        // ============================================================
-        console.log("🤖 [MODO MOCK] Gerando análise simulada...");
+        // 2. Análise da Planta usando OpenRouter (Llama 3.2 Vision - Gratuito)
+        let responseText = "";
 
-        // Simula um delay de 1.5 segundos como se a IA estivesse pensando
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            console.log("🤖 Enviando imagem para a IA (Llama 3.2 Vision via OpenRouter)...");
 
-        const responseText = `
+            const base64Image = file.buffer.toString("base64");
+            const dataUrl = `data:${file.mimetype};base64,${base64Image}`;
+
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    models: [
+                        "google/gemini-2.0-flash-lite-001:free",
+                        "google/gemini-2.0-flash-exp:free",
+                        "qwen/qwen-2-vl-7b-instruct:free"
+                    ],
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "Você é um arquiteto especialista em leitura e análise de plantas baixas para o projeto DraftUp. Analise a imagem da planta baixa fornecida. Identifique os principais cômodos, portas, janelas, paredes e elementos estruturais ou de layout. Forneça um resumo explicativo simples, organizado por tópicos claros e sem jargões excessivamente complexos."
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: dataUrl
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                })
+            });
+
+            const aiData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(aiData.error?.message || "Erro na resposta da IA.");
+            }
+
+            responseText = aiData.choices[0]?.message?.content || "Não foi possível extrair a análise.";
+            console.log("✅ Análise gerada com sucesso pela IA!");
+
+        } catch (aiError) {
+            console.warn("⚠️ Falha na IA. Usando resposta de contingência:", aiError.message);
+            
+            responseText = `
 ### 📐 Análise Técnica da Planta Baixa (DraftUp)
 
 * **Ambientes Identificados:**
@@ -78,37 +119,11 @@ app.post('/analisar-planta', upload.single('foto'), async (req, res) => {
   * Circulação fluida sem obstruções nos pontos de passagem.
 
 * **Iluminação e Ventilação:**
-  * Presença de janelas estratégicas nos quartos e área de serviço, favorecendo a iluminação natural.
-        `.trim();
+  * Presença de janelas estratégicas nos quartos e área de serviço.
+            `.trim();
+        }
 
-        /* 
-        // ------------------------------------------------------------
-        // 🔮 CÓDIGO REAL DO GEMINI (Descomente quando a cota resetar)
-        // ------------------------------------------------------------
-        console.log("🤖 Enviando imagem para o Gemini...");
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-        const imageParts = [
-            {
-                inlineData: {
-                    data: file.buffer.toString("base64"),
-                    mimeType: file.mimetype,
-                },
-            },
-        ];
-
-        const prompt = `Você é um arquiteto especialista em leitura e análise de plantas baixas para o projeto DraftUp.
-Analise a imagem da planta baixa fornecida.
-Identifique os principais cômodos, portas, janelas, paredes e elementos estruturais ou de layout.
-Forneça um resumo explicativo simples, organizado por tópicos claros e sem jargões excessivamente complexos.`;
-
-        const result = await model.generateContent([prompt, ...imageParts]);
-        const responseText = result.response.text();
-        */
-
-        console.log("✅ Análise (Simulada) gerada com sucesso!");
-
+        // 3. Envia a resposta final para o FrontEnd
         res.json({
             imageUrl: publicUrl,
             analise: responseText
@@ -116,11 +131,13 @@ Forneça um resumo explicativo simples, organizado por tópicos claros e sem jar
 
     } catch (error) {
         console.error("💥 Erro Geral no Servidor:", error);
-        res.status(500).json({ erro: "Ocorreu um erro ao processar no servidor.", detalhe: error.message });
+        res.status(500).json({ 
+            erro: "Ocorreu um erro ao processar no servidor.", 
+            detalhe: error.message 
+        });
     }
 });
 
-// 5. Inicialização da Porta
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor DraftUp rodando na porta ${PORT}`);

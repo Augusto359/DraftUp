@@ -11,7 +11,7 @@ export default function AnalyzingPage() {
   const [analise, setAnalise] = useState(null);
   const [erro, setErro] = useState(null);
 
-  // 💡 Trava de segurança contra execuções duplas no React (Strict Mode)
+  // Trava de segurança contra execuções duplas no React (Strict Mode)
   const requisicaoFeita = useRef(false);
 
   useEffect(() => {
@@ -20,7 +20,6 @@ export default function AnalyzingPage() {
       return;
     }
 
-    // Se já disparou a requisição nesta sessão, bloqueia a segunda chamada
     if (requisicaoFeita.current) return;
     requisicaoFeita.current = true;
 
@@ -29,22 +28,20 @@ export default function AnalyzingPage() {
       setErro(null);
 
       const formData = new FormData();
-      // O nome do campo DEVE ser 'foto' para bater com upload.single('foto') do Multer
       formData.append('foto', arquivo);
 
       try {
-        // ⚠️ Se estiver testando no celular/ngrok, mude para a URL do seu ngrok do backend ou crie uma var de ambiente
-      const response = await fetch('/analisar-planta', {
-         method: 'POST',
-         body: formData,
-});
+        // Chamando explicitamente a porta 5000 do servidor Express
+        const response = await fetch('http://localhost:5000/analisar-planta', {
+          method: 'POST',
+          body: formData,
+        });
 
         if (!response.ok) {
           throw new Error('Falha ao processar a planta baixa.');
         }
 
         const data = await response.json();
-        // Lendo o campo 'analise' que vem do res.json({ analise: ... })
         setAnalise(data.analise);
       } catch (err) {
         console.error('Erro na análise:', err);
@@ -56,6 +53,16 @@ export default function AnalyzingPage() {
 
     enviarParaBackend();
   }, [arquivo, navigate]);
+
+  // Função para navegar até a tela de visualização 3D
+  const handleIrPara3D = () => {
+    navigate('/viewer-3d', {
+      state: {
+        arquivo,
+        analise,
+      },
+    });
+  };
 
   return (
     <div className="w-full min-h-screen bg-gray-50 py-10 px-4 flex justify-center items-center font-sans antialiased">
@@ -74,7 +81,7 @@ export default function AnalyzingPage() {
           <div className="text-center py-12 space-y-6">
             <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto" />
             <div className="space-y-1">
-              <h2 className="text-xl font-bold text-gray-900">Analisando sua planta...</h2>
+              <h2 className="text-xl font-bold text-gray-900">Analisando sua planta com IA...</h2>
               <p className="text-sm text-gray-500">
                 Processando o arquivo <span className="font-medium text-gray-700">{arquivo?.name}</span>.
               </p>
@@ -110,17 +117,29 @@ export default function AnalyzingPage() {
               </span>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 text-gray-800 text-sm leading-relaxed whitespace-pre-line space-y-3">
+            {/* Texto retornado da API do Gemini */}
+            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 text-gray-800 text-sm leading-relaxed whitespace-pre-line space-y-3 max-h-96 overflow-y-auto">
               {analise}
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-gray-100">
+            {/* Botões de Ação */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-gray-100">
               <Link 
                 to="/upload" 
-                className="bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs py-2.5 px-4 rounded-lg transition-colors"
+                className="w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs py-3 px-4 rounded-xl transition-colors"
               >
                 Analisar Outra Planta
               </Link>
+
+              <button
+                onClick={handleIrPara3D}
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-orange-500/20 flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                Gerar Visualização 3D →
+              </button>
             </div>
           </div>
         )}
