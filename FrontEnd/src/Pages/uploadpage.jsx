@@ -5,11 +5,29 @@ import Cloud from '../../imagens/cloud.png';
 
 export default function Upload() {
   const [arquivo, setArquivo] = useState(null);
+  const [arrastando, setArrastando] = useState(false);
   const [mostrarcard, setMostrarcard] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Função para redirecionar para a página de análise com o arquivo selecionado
+  // Validação unificada de arquivos (MIME types)
+  const validarEGuardarArquivo = (file) => {
+    const tiposPermitidos = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'application/pdf'
+    ];
+
+    if (!tiposPermitidos.includes(file.type)) {
+      alert('Formato não suportado. Envie PDF, JPG, PNG ou WEBP.');
+      return;
+    }
+
+    setArquivo(file);
+  };
+
+  // Redireciona para a página de análise enviando o arquivo
   const handleEnviar = () => {
     if (!arquivo || loading) return;
     
@@ -33,7 +51,7 @@ export default function Upload() {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">DraftUp</h1>
           <nav className="flex gap-4 text-xs sm:text-sm font-semibold">
             <Link to="/" className="text-gray-600 hover:text-orange-600 transition-colors">Início</Link>
-           <Link to="/AboutUs" className="text-gray-600 hover:text-orange-600 transition-colors">Sobre</Link>
+            <Link to="/AboutUs" className="text-gray-600 hover:text-orange-600 transition-colors">Sobre</Link>
             <Link to="/#como-funciona" className="text-gray-600 hover:text-orange-600 transition-colors">Como funciona</Link>
             <Link to="/#chamada-final" className="text-gray-600 hover:text-orange-600 transition-colors">Contatos</Link>
           </nav>
@@ -53,40 +71,93 @@ export default function Upload() {
         <div id="upload" className="flex flex-col gap-4 max-w-xl mx-auto my-6">
           <div className="flex justify-between items-center px-1">
             <span className="text-xs font-semibold text-gray-500">Formatos aceitos</span>
-            <span className="text-xs text-gray-400">PDF, JPG, PNG</span>
+            <span className="text-xs text-gray-400">PDF, JPG, PNG, WEBP</span>
           </div>
 
-          {/* Área de Dropzone */}
-          <label className="group border-2 border-dashed border-gray-200 hover:border-orange-500 rounded-xl p-8 flex flex-col justify-center items-center gap-3 cursor-pointer bg-gray-50/50 hover:bg-orange-50/20 transition-all text-center">
-            
-            <img src={Cloud} alt="Nuvem de Upload" className="w-10 h-10 opacity-75 group-hover:opacity-100 transition-opacity" />
-            
-            <div className="space-y-1">
+          {/* Área de Dropzone Atualizada */}
+          <label
+            className={`group border-2 border-dashed rounded-xl p-8 flex flex-col justify-center items-center gap-3 cursor-pointer transition-all text-center ${
+              arrastando
+                ? 'border-orange-500 bg-orange-50'
+                : 'border-gray-200 hover:border-orange-500 bg-gray-50/50 hover:bg-orange-50/20'
+            }`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setArrastando(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (e.currentTarget.contains(e.relatedTarget)) return;
+
+              setArrastando(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setArrastando(false);
+
+              const arquivoSolto = e.dataTransfer.files[0];
+              if (arquivoSolto) {
+                validarEGuardarArquivo(arquivoSolto);
+              }
+            }}
+          >
+            <img
+              src={Cloud}
+              alt="Nuvem de Upload"
+              className={`w-10 h-10 transition-opacity pointer-events-none ${
+                arrastando ? 'opacity-100' : 'opacity-75 group-hover:opacity-100'
+              }`}
+            />
+
+            <div className="space-y-1 pointer-events-none">
               <p className="text-gray-800 font-medium text-sm">
-                Arraste seu arquivo aqui ou <span className="text-orange-600 underline underline-offset-2">clique para selecionar</span>
+                {arrastando ? (
+                  <span className="text-orange-600 font-bold">
+                    Solte sua planta aqui!
+                  </span>
+                ) : (
+                  <>
+                    Arraste seu arquivo aqui ou{' '}
+                    <span className="text-orange-600 underline underline-offset-2">
+                      clique para selecionar
+                    </span>
+                  </>
+                )}
               </p>
             </div>
 
-            <span className="mt-2 bg-white hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-xs font-semibold border border-gray-300 shadow-sm transition-all">
+            <span className="mt-2 bg-white group-hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-xs font-semibold border border-gray-300 shadow-sm transition-all pointer-events-none">
               Escolher arquivo
             </span>
 
-            <input 
+            <input
               className="hidden"
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={(e) => setArquivo(e.target.files[0])}
+              accept="image/jpeg, image/png, image/webp, application/pdf"
+              onChange={(e) => {
+                const arquivoSelecionado = e.target.files[0];
+                if (arquivoSelecionado) {
+                  validarEGuardarArquivo(arquivoSelecionado);
+                }
+              }}
             />
 
-            {/* Arquivo Selecionado */}
             {arquivo && (
-              <div className="mt-2 text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-1.5 rounded-md border border-emerald-200">
+              <div className="mt-2 text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-1.5 rounded-md border border-emerald-200 pointer-events-none">
                 ✓ {arquivo.name}
               </div>
             )}
           </label>
 
-          {/* Botão de Envio enviando para /analyzing */}
+          {/* Botão de Envio */}
           <button 
             onClick={handleEnviar}
             disabled={!arquivo || loading}

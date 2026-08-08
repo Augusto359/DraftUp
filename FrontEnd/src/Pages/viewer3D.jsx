@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
+import Modelo3D from '../components/Modelo3D';
+console.log('🔥 VIEWER 3D FOI CARREGADO');
 
 export default function Viewer3D() {
   const location = useLocation();
@@ -7,6 +9,7 @@ export default function Viewer3D() {
 
   const arquivo = location.state?.arquivo;
   const analise = location.state?.analise;
+  const planta3D = location.state?.planta3D;
 
   const [modoModoVisualizacao, setModoVisualizacao] = useState('3d'); // '3d' ou 'planta'
 
@@ -69,18 +72,23 @@ export default function Viewer3D() {
             {/* Canvas / Renderizador 3D */}
             <div className="flex-1 flex items-center justify-center my-4 relative">
               {modoModoVisualizacao === '3d' ? (
-                /* Container do Modelo 3D */
-                <div className="text-center text-slate-400 space-y-3">
-                  <div className="w-20 h-20 mx-auto bg-slate-800/60 border border-slate-700 rounded-2xl flex items-center justify-center text-orange-500 shadow-inner">
-                    <svg className="w-10 h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium text-slate-300">Ambiente 3D Gerado com Sucesso</p>
-                  <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                    Arraste com o mouse para rotacionar o modelo da estrutura traduzida.
-                  </p>
+    <div className="absolute inset-0">
+        {planta3D ? (
+            <Modelo3D planta={planta3D} />
+        ) : (
+            <div className="h-full flex items-center justify-center text-center text-slate-400">
+                <div>
+                    <p className="text-sm font-medium text-slate-300">
+                        Modelo 3D indisponível
+                    </p>
+
+                    <p className="text-xs text-slate-500 mt-2">
+                        A IA não conseguiu gerar os dados da planta.
+                    </p>
                 </div>
+            </div>
+        )}
+    </div>
               ) : (
                 /* Visualização 2D do arquivo enviado */
                 <div className="max-h-80 overflow-hidden rounded-lg border border-slate-700">

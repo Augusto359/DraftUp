@@ -17,7 +17,7 @@ function App() {
         <Route path="/AboutUs" element={<AboutUs />} />
         
         {/* Rota ajustada para bater com a navegação do AnalyzingPage */}
-        <Route path="/viewer-3d" element={<Viwer3D />} />
+        <Route path="/viewer3d" element={<Viwer3D />} />
       </Routes>
     </BrowserRouter>
   );
