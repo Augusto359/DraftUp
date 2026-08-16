@@ -171,6 +171,20 @@ function validarPlanta3D(dados) {
     throw new Error('Dados da planta inválidos.');
   }
 
+  // 💡 Se a IA retornou as propriedades na raiz em vez de dentro de planta3D, ajustamos automaticamente:
+  if (!dados.planta3D && (dados.ambientes || dados.paredes)) {
+    dados = {
+      resumo: dados.resumo || 'Planta baixa analisada.',
+      planta3D: {
+        ambientes: dados.ambientes || [],
+        paredes: dados.paredes || [],
+        portas: dados.portas || [],
+        janelas: dados.janelas || [],
+        piso: dados.piso || { largura: 10, comprimento: 10 }
+      }
+    };
+  }
+
   if (!dados.planta3D) {
     throw new Error('A resposta da IA não contém a propriedade planta3D.');
   }
@@ -196,7 +210,6 @@ async function tentarGroq(base64Image, mimeType) {
 
   console.log('🔄 Tentando Groq...');
 
-  // 💡 A URL DEVE SER EXATAMENTE UMA STRING LIMPA
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -205,12 +218,11 @@ async function tentarGroq(base64Image, mimeType) {
     },
     body: JSON.stringify({
       model: process.env.GROQ_MODEL || 'llama-3.2-11b-vision-instruct',
-      response_format: { type: 'json_object' },
       temperature: 0.1,
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant designed to output raw JSON strictly following the requested format.'
+          content: 'You are a JSON-only response bot. You must respond with a raw valid JSON object only. No markdown formatting, no code blocks, no intro or outro text.'
         },
         {
           role: 'user',
@@ -245,7 +257,7 @@ async function tentarOpenRouter(base64Image, mimeType) {
 
   console.log('🔄 [2/3] Tentando OpenRouter...');
   const dataUrl = `data:${mimeType};base64,${base64Image}`;
-  const model = process.env.OPENROUTER_MODEL || 'qwen/qwen2.5-vl-72b-instruct:free';
+  const model = process.env.OPENROUTER_MODEL || 'qwen/qwen2.5-vl-72b-instruct';
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
