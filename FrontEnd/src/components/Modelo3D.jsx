@@ -1,40 +1,27 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, PerspectiveCamera } from '@react-three/drei';
+import * as THREE from 'three';
 
 function Parede({ parede }) {
     const altura = parede.altura || 2.8;
     const espessura = parede.espessura || 0.15;
-
     const comprimento = parede.comprimento || 3;
-
     const x = parede.x || 0;
     const y = parede.y || 0;
 
-    const rotacao =
-        parede.orientacao === 'vertical'
-            ? [0, Math.PI / 2, 0]
-            : [0, 0, 0];
+    const rotacao = parede.orientacao === 'vertical' 
+        ? [0, Math.PI / 2, 0] 
+        : [0, 0, 0];
 
     return (
         <mesh
-            position={[
-                x,
-                altura / 2,
-                y
-            ]}
+            position={[x, altura / 2, y]}
             rotation={rotacao}
             castShadow
             receiveShadow
         >
-            <boxGeometry
-                args={[
-                    comprimento,
-                    altura,
-                    espessura
-                ]}
-            />
-
+            <boxGeometry args={[comprimento, altura, espessura]} />
             <meshStandardMaterial color="#d6d3d1" />
         </mesh>
     );
