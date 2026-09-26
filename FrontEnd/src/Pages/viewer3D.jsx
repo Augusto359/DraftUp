@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import Modelo3D from '../components/Modelo3D';
+import ModeloGLB from '../components/ModeloGLB';
 console.log('🔥 VIEWER 3D FOI CARREGADO');
 
 export default function Viewer3D() {
@@ -8,13 +8,12 @@ export default function Viewer3D() {
   const navigate = useNavigate();
 
   const arquivo = location.state?.arquivo;
-  const analise = location.state?.analise;
-  const planta3D = location.state?.planta3D;
+  const resumo = location.state?.resumo;
+  const glbUrl = location.state?.glbUrl;
 
-  const [modoModoVisualizacao, setModoVisualizacao] = useState('3d'); // '3d' ou 'planta'
+  const [modoModoVisualizacao, setModoVisualizacao] = useState('3d');
 
-  // Redireciona de volta caso a página seja acessada sem dados
-  if (!analise && !arquivo) {
+  if (!resumo && !arquivo) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
         <p className="text-gray-600 mb-4">Nenhuma planta foi carregada para visualização 3D.</p>
@@ -32,7 +31,6 @@ export default function Viewer3D() {
     <div className="w-full min-h-screen bg-gray-50 py-8 px-4 sm:px-8 font-sans antialiased flex flex-col">
       <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col gap-6">
         
-        {/* Header Padronizado */}
         <header className="flex justify-between items-center pb-4 border-b border-gray-200 bg-white p-4 rounded-xl shadow-sm">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">DraftUp <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full ml-2">Visualizador 3D</span></h1>
           <nav className="flex gap-4 text-xs sm:text-sm font-semibold items-center">
@@ -41,13 +39,10 @@ export default function Viewer3D() {
           </nav>
         </header>
 
-        {/* Layout Principal em Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           
-          {/* Coluna da Esquerda (Viewport 3D) */}
           <div className="lg:col-span-2 bg-slate-900 rounded-2xl p-4 flex flex-col justify-between shadow-xl min-h-[450px] border border-slate-800 relative overflow-hidden">
             
-            {/* Controles Superiores do Viewport */}
             <div className="flex justify-between items-center z-10">
               <span className="text-xs text-slate-300 bg-slate-800/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-lg">
                 Projeto: <b>{arquivo?.name || 'Planta_Processada.png'}</b>
@@ -69,12 +64,11 @@ export default function Viewer3D() {
               </div>
             </div>
 
-            {/* Canvas / Renderizador 3D */}
             <div className="flex-1 flex items-center justify-center my-4 relative">
               {modoModoVisualizacao === '3d' ? (
     <div className="absolute inset-0">
-        {planta3D ? (
-            <Modelo3D planta={planta3D} />
+        {glbUrl ? (
+            <ModeloGLB glbUrl={glbUrl} />
         ) : (
             <div className="h-full flex items-center justify-center text-center text-slate-400">
                 <div>
@@ -90,7 +84,6 @@ export default function Viewer3D() {
         )}
     </div>
               ) : (
-                /* Visualização 2D do arquivo enviado */
                 <div className="max-h-80 overflow-hidden rounded-lg border border-slate-700">
                   {arquivo && typeof arquivo === 'object' ? (
                     <img 
@@ -105,14 +98,12 @@ export default function Viewer3D() {
               )}
             </div>
 
-            {/* Barra de Status Inferior */}
             <div className="flex justify-between items-center text-[11px] text-slate-400 border-t border-slate-800/80 pt-3 px-1">
               <span>Status: <strong className="text-emerald-400">Renderizado</strong></span>
-              <span>Estrutura identificada via Gemini AI</span>
+              <span>Estrutura identificada via YOLO + Trimesh</span>
             </div>
           </div>
 
-          {/* Coluna da Direita (Relatório Detalhado da IA) */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
@@ -127,13 +118,11 @@ export default function Viewer3D() {
                 </div>
               </div>
 
-              {/* Texto retornado pelo Gemini */}
               <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50 p-4 rounded-xl border border-gray-100 max-h-[350px] overflow-y-auto">
-                {analise}
+                {resumo}
               </div>
             </div>
 
-            {/* Botão de Exportar / Ações */}
             <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col gap-2">
               <button 
                 onClick={() => window.print()}

@@ -209,71 +209,6 @@ function validarPlanta3D(dados) {
 // ============================================================================
 // FUNÇÕES DE REQUISIÇÃO ÀS IAs
 // ============================================================================
-// ============================================================================
-// FUNÇÕES DE REQUISIÇÃO ÀS IAs
-// ============================================================================
-// ============================================================================
-// NORMALIZAÇÃO DE ESCALA (pixels -> metros)
-// ============================================================================
-function normalizarEscalaParaMetros(planta3D, targetMaiorLadoMetros = 12) {
-  const todosElementos = [
-    ...(planta3D.paredes || []),
-    ...(planta3D.portas || []),
-    ...(planta3D.janelas || []),
-  ];
-
-  if (todosElementos.length === 0) {
-    return planta3D;
-  }
-
-  let minX = Infinity, maxX = -Infinity;
-  let minY = Infinity, maxY = -Infinity;
-
-  for (const el of todosElementos) {
-    const tamanho = el.comprimento || el.largura || 0;
-    const x = el.x || 0;
-    const y = el.y || 0;
-
-    minX = Math.min(minX, x - tamanho / 2);
-    maxX = Math.max(maxX, x + tamanho / 2);
-    minY = Math.min(minY, y - tamanho / 2);
-    maxY = Math.max(maxY, y + tamanho / 2);
-  }
-
-  const larguraPixels = maxX - minX;
-  const alturaPixels = maxY - minY;
-  const maiorLadoPixels = Math.max(larguraPixels, alturaPixels);
-
-  if (maiorLadoPixels <= 0) {
-    return planta3D;
-  }
-
-  const escala = targetMaiorLadoMetros / maiorLadoPixels;
-  const centroX = (minX + maxX) / 2;
-  const centroY = (minY + maxY) / 2;
-
-  function escalarElemento(el, campoTamanho) {
-    const novo = { ...el };
-    novo.x = ((el.x || 0) - centroX) * escala;
-    novo.y = ((el.y || 0) - centroY) * escala;
-    if (el[campoTamanho] != null) {
-      novo[campoTamanho] = el[campoTamanho] * escala;
-    }
-    return novo;
-  }
-
-  return {
-    ...planta3D,
-    paredes: (planta3D.paredes || []).map(p => escalarElemento(p, 'comprimento')),
-    portas: (planta3D.portas || []).map(p => escalarElemento(p, 'largura')),
-    janelas: (planta3D.janelas || []).map(j => escalarElemento(j, 'largura')),
-    piso: {
-      largura: Math.max(larguraPixels * escala, 1),
-      comprimento: Math.max(alturaPixels * escala, 1),
-    },
-  };
-}
-
 async function tentarYolo(fileBuffer, mimeType, originalname) {
   const formData = new FormData();
   const blob = new Blob([fileBuffer], { type: mimeType });
@@ -289,29 +224,15 @@ async function tentarYolo(fileBuffer, mimeType, originalname) {
     throw new Error(errorData.erro || `YOLO API retornou HTTP ${response.status}`);
   }
 
-  const data = await response.json();
-  
-  // 🧠 AQUI O TERMINAL DO NODE VAI MOSTRAR TUDO O QUE O YOLO PENSOU:
-  console.log("🧠 O que o YOLO pensou (JSON bruto):", JSON.stringify(data, null, 2));
+  const arrayBuffer = await response.arrayBuffer();
+  const bufferGlb = Buffer.from(arrayBuffer);
 
-  const totalElementos = data.elementos?.length || 0;
-  const paredes = data.paredes || data.elementos?.filter(e => e.classe === 'parede') || [];
-  const portas = data.portas || data.elementos?.filter(e => e.classe === 'porta') || [];
-  const janelas = data.janelas || data.elementos?.filter(e => e.classe === 'janela') || [];
-
-    const planta3DBruta = {
-    ambientes: data.ambientes || [],
-    paredes: paredes,
-    portas: portas,
-    janelas: janelas,
-    piso: data.piso || { largura: 10, comprimento: 10 }
-  };
-
-  const planta3DNormalizada = normalizarEscalaParaMetros(planta3DBruta);
+  console.log("🧠 Modelo 3D .glb gerado com sucesso pelo YOLO e Trimesh!");
 
   return {
-    resumo: `Análise local concluída via YOLO. Foram detectados ${totalElementos} elementos estruturais, contendo ${paredes.length} paredes, ${portas.length} portas e ${janelas.length} janelas mapeadas pelo seu modelo treinado.`,
-    planta3D: planta3DNormalizada
+    resumo: `Análise 3D local concluída via YOLO e Trimesh.`,
+    isGlbBinary: true,
+    glbBuffer: bufferGlb
   };
 }
 
@@ -340,7 +261,7 @@ async function tentarGroq(base64Image, mimeType) {
             { type: 'text', text: PROMPT_PADRAO },
             {
               type: 'image_url',
-              image_url: { url: `data:${mimeType};base64,${base64Image}` }
+              image_url: { url: `data:\({mimeType};base64,\){base64Image}` }
             }
           ]
         }
@@ -365,7 +286,7 @@ async function tentarOpenRouter(base64Image, mimeType) {
     throw new Error('OPENROUTER_API_KEY não configurada.');
   }
 
-  const dataUrl = `data:${mimeType};base64,${base64Image}`;
+  const dataUrl = `data:\({mimeType};base64,\){base64Image}`;
   const model = process.env.OPENROUTER_MODEL || 'qwen/qwen3.8-27b:free';
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -431,95 +352,28 @@ async function tentarGemini(fileBuffer, mimeType) {
 app.post('/analisar-planta', upload.single('foto'), async (req, res) => {
   try {
     const file = req.file;
-
     if (!file) {
-      return res.status(400).json({ erro: 'Nenhuma foto foi enviada.' });
+      return res.status(400).json({ erro: 'Nenhum ficheiro enviado.' });
     }
-
-    const fileName = `${Date.now()}-${file.originalname}`;
-    const { error: storageError } = await supabase.storage
-      .from('plantas')
-      .upload(fileName, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true
-      });
-
-    if (storageError) {
-      return res.status(500).json({ erro: `Erro no Supabase: ${storageError.message}` });
-    }
-
-    const { data: publicData } = supabase.storage
-      .from('plantas')
-      .getPublicUrl(fileName);
-
-    const publicUrl = publicData.publicUrl;
-    const base64Image = file.buffer.toString('base64');
-    let dadosIA = null;
-    let planta3D = null;
 
     try {
       const resultadoYolo = await tentarYolo(file.buffer, file.mimetype, file.originalname);
-      dadosIA = resultadoYolo;
-      planta3D = resultadoYolo.planta3D;
-      console.log('🎉 Sucesso via YOLO!');
+      
+      if (resultadoYolo.isGlbBinary) {
+        res.setHeader('Content-Type', 'model/gltf-binary');
+        res.setHeader('X-Analise-Resumo', encodeURIComponent(resultadoYolo.resumo));
+        return res.send(resultadoYolo.glbBuffer);
+      }
     } catch (err) {
-      console.warn('⚠️ YOLO falhou ou está desligado:', err.message);
+      console.warn('⚠️ YOLO falhou, a tentar alternativas (Gemini/Groq):', err.message);
     }
 
-    if (!planta3D) {
-      try {
-        const respostaGroq = await tentarGroq(base64Image, file.mimetype);
-        dadosIA = extrairJSON(respostaGroq);
-        dadosIA = validarPlanta3D(dadosIA);
-        planta3D = dadosIA.planta3D;
-        console.log('🎉 Sucesso via GROQ!');
-      } catch (err) {
-        console.warn('⚠️ Groq falhou:', err.message);
-      }
-    }
-
-    if (!planta3D) {
-      try {
-        const respostaOpenRouter = await tentarOpenRouter(base64Image, file.mimetype);
-        dadosIA = extrairJSON(respostaOpenRouter);
-        dadosIA = validarPlanta3D(dadosIA);
-        planta3D = dadosIA.planta3D;
-        console.log('🎉 Sucesso via OPENROUTER!');
-      } catch (err) {
-        console.warn('⚠️ OpenRouter falhou:', err.message);
-      }
-    }
-
-    if (!planta3D) {
-      try {
-        const respostaGemini = await tentarGemini(file.buffer, file.mimetype);
-        dadosIA = extrairJSON(respostaGemini);
-        dadosIA = validarPlanta3D(dadosIA);
-        planta3D = dadosIA.planta3D;
-        console.log('🎉 Sucesso via GEMINI!');
-      } catch (err) {
-        console.warn('⚠️ Gemini falhou:', err.message);
-      }
-    }
-
-    if (!planta3D) {
-      return res.status(503).json({
-        erro: 'Não foi possível analisar a planta com a IA.',
-        imageUrl: publicUrl
-      });
-    }
-
-    return res.json({
-      imageUrl: publicUrl,
-      analise: dadosIA.resumo || 'Análise concluída.',
-      planta3D: planta3D
-    });
+    // Caso o YOLO estivesse offline, tentaria as IAs tradicionais de texto/JSON (pode expandir aqui se necessário)
+    return res.status(503).json({ erro: 'Serviço YOLO indisponível e alternativas não configuradas para fluxo GLB direto.' });
 
   } catch (error) {
-    return res.status(500).json({
-      erro: 'Ocorreu um erro ao processar a planta.',
-      detalhe: error.message
-    });
+    console.error('Erro no processamento da planta:', error);
+    res.status(500).json({ erro: 'Erro interno ao processar a planta.' });
   }
 });
 

@@ -8,8 +8,8 @@ export default function AnalyzingPage() {
     const arquivo = location.state?.arquivo;
 
     const [carregando, setCarregando] = useState(true);
-    const [analise, setAnalise] = useState(null);
-    const [planta3D, setPlanta3D] = useState(null);
+    const [resumoTexto, setResumoTexto] = useState('');
+    const [glbUrl, setGlbUrl] = useState(null);
     const [erro, setErro] = useState(null);
 
     const requisicaoFeita = useRef(false);
@@ -31,23 +31,35 @@ export default function AnalyzingPage() {
             formData.append('foto', arquivo);
 
             try {
-                console.log('📤 Enviando planta para o backend...');
+                console.log('📤 Enviando planta para o backend (YOLO + Trimesh)...');
 
                 const response = await fetch('http://localhost:5000/analisar-planta', {
                     method: 'POST',
                     body: formData
                 });
 
-                const data = await response.json();
-                console.log('📥 Resposta recebida:', data);
+                const contentType = response.headers.get('content-type');
 
                 if (!response.ok) {
-                    throw new Error(data.erro || 'Falha ao processar a planta baixa.');
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.erro || 'Falha ao processar a planta baixa.');
                 }
 
-                setAnalise(data.analise);
-                setPlanta3D(data.planta3D);
-                console.log('✅ Análise concluída. Planta 3D:', data.planta3D);
+                if (contentType && contentType.includes('model/gltf-binary')) {
+                    const blobGlb = await response.blob();
+                    const urlCriada = URL.createObjectURL(blobGlb);
+
+                    const resumoCodificado = response.headers.get('x-analise-resumo');
+                    const resumoDecodificado = resumoCodificado
+                        ? decodeURIComponent(resumoCodificado)
+                        : 'Análise 3D concluída com sucesso.';
+
+                    setGlbUrl(urlCriada);
+                    setResumoTexto(resumoDecodificado);
+                    console.log('✅ Modelo 3D .glb recebido com sucesso!');
+                } else {
+                    throw new Error('O servidor não retornou um modelo 3D válido.');
+                }
 
             } catch (err) {
                 console.error('❌ Erro na análise:', err);
@@ -61,16 +73,16 @@ export default function AnalyzingPage() {
     }, [arquivo, navigate]);
 
     const handleIrPara3D = () => {
-        if (!planta3D) {
-            console.error('❌ Nenhum dado de planta 3D disponível.');
+        if (!glbUrl) {
+            console.error('❌ Nenhum modelo 3D disponível.');
             return;
         }
 
         navigate('/viewer3d', {
             state: {
                 arquivo,
-                analise,
-                planta3D
+                glbUrl,
+                resumo: resumoTexto
             }
         });
     };
@@ -126,7 +138,7 @@ export default function AnalyzingPage() {
                                 </div>
                                 <div className="flex items-center gap-3 text-sm">
                                     <span className="w-2.5 h-2.5 rounded-full bg-gray-300" />
-                                    <span className="text-gray-400">Construindo representação 3D</span>
+                                    <span className="text-gray-400">Construindo malha 3D (.glb)</span>
                                 </div>
                             </div>
 
@@ -157,7 +169,7 @@ export default function AnalyzingPage() {
                     </div>
                 )}
 
-                {!carregando && !erro && analise && (
+                {!carregando && !erro && glbUrl && (
                     <div className="space-y-6">
                         <div className="bg-orange-50 p-5 rounded-xl border border-orange-100">
                             <div className="flex items-center justify-between">
@@ -180,11 +192,11 @@ export default function AnalyzingPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-gray-900">Relatório Técnico</h3>
-                                    <p className="text-xs text-gray-500">Análise simplificada da planta</p>
+                                    <p className="text-xs text-gray-500">Resumo da análise 3D</p>
                                 </div>
                             </div>
                             <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 text-gray-700 text-sm leading-relaxed whitespace-pre-line max-h-96 overflow-y-auto">
-                                {analise}
+                                {resumoTexto}
                             </div>
                         </div>
 
@@ -198,7 +210,7 @@ export default function AnalyzingPage() {
 
                             <button
                                 onClick={handleIrPara3D}
-                                disabled={!planta3D}
+                                disabled={!glbUrl}
                                 className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold text-sm py-3 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
